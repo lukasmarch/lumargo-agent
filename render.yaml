@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: lumargo-agent
+    env: docker
+    plan: starter
+    autoDeploy: true
+    region: frankfurt
+    disk:
+      name: chroma
+      mountPath: /app/data/chroma_db
+      sizeGB: 1
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false
