@@ -1,0 +1,6 @@
+.env
+__pycache__/
+.DS_Store
+data/leads.db
+data/chroma_db/*
+!data/chroma_db/.gitkeep
