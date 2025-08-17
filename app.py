@@ -9,6 +9,7 @@ from openai import OpenAI
 from rag.build_index import build_all
 from rag.search import search_gallery
 from rag.qa import answer_kb
+from rag.search import kb_search
 
 from chromadb import Client
 
@@ -138,17 +139,23 @@ class LeadReq(BaseModel):
 # --- Endpointy
 
 
-@app.get("/debug/status")
-def debug_status():
-    DB = str((Path(__file__).resolve().parent / "data" / "chroma_db").resolve())
-    try:
-        coll = PersistentClient(path=DB).get_collection("gallery")
-        data = coll.get(include=["metadatas"])  # "ids" wracają zawsze
-        n = len(data.get("ids", []))
-        sample = data.get("metadatas", [None])[0]
-    except Exception as e:
-        n, sample = 0, str(e)
-    return {"db_dir": DB, "gallery_items": n, "sample": sample}
+# @app.get("/debug/status")
+# def debug_status():
+#     DB = str((Path(__file__).resolve().parent / "data" / "chroma_db").resolve())
+#     try:
+#         coll = PersistentClient(path=DB).get_collection("gallery")
+#         data = coll.get(include=["metadatas"])  # "ids" wracają zawsze
+#         n = len(data.get("ids", []))
+#         sample = data.get("metadatas", [None])[0]
+#     except Exception as e:
+#         n, sample = 0, str(e)
+#     return {"db_dir": DB, "gallery_items": n, "sample": sample}
+
+
+@app.get("/debug/peek")
+def debug_peek(q: str, k: int = 5):
+    hits = kb_search(q, k=k)  # zwróć np. metadatas, documents, distances
+    return {"query": q, "hits": hits}
 
 
 @app.post("/search")

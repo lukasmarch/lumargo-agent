@@ -173,7 +173,7 @@ def build_kb() -> int:
         return 0
 
     embs = embed_texts(docs)
-    coll.add(ids=ids, embeddings=embs, metadatas=metas)
+    coll.add(ids=ids, documents=docs, embeddings=embs, metadatas=metas)
 
     try:
         cnt = coll.count()

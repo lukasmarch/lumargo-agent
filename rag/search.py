@@ -3,6 +3,7 @@ import os
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 from chromadb import Client
+
 from chromadb import PersistentClient
 
 # from chromadb.config import Settings
@@ -11,6 +12,8 @@ from openai import OpenAI
 # Ścieżki niezależne od bieżącego katalogu
 ROOT = Path(__file__).resolve().parents[1]
 DB_DIR = str(ROOT / "data" / "chroma_db")
+
+KB_COLL = "knowledge_base"
 
 GALLERY_COLL = "gallery"
 ALLOWED_FILTERS = {"grave_type", "plaque_color", "stone", "finish", "category"}
@@ -87,3 +90,42 @@ def search_gallery(
             }
         )
     return out[:limit]
+
+
+def _embed_query(text: str, model: str = "text-embedding-3-small") -> list[float]:
+    text = (text or "").strip()
+    if not text:
+        raise ValueError("empty query")
+    resp = client.embeddings.create(model=model, input=[text])
+    return resp.data[0].embedding
+
+
+def _get_coll(name: str):
+    cli = PersistentClient(path=DB_DIR)
+    return cli.get_collection(name)
+
+
+def kb_search(query: str, k: int = 5):
+    """
+    Zwraca surowe trafienia z kolekcji knowledge_base:
+    [{id, document, metadata, distance}, ...]
+    """
+    coll = _get_coll(KB_COLL)
+    emb = _embed_query(query)
+    res = coll.query(query_embeddings=[emb], n_results=max(1, int(k)))
+
+    out = []
+    ids = res.get("ids", [[]])[0]
+    docs = res.get("documents", [[]])[0]
+    metas = res.get("metadatas", [[]])[0]
+    dists = (res.get("distances") or [[None]])[0]
+    for i in range(len(ids)):
+        out.append(
+            {
+                "id": ids[i],
+                "document": docs[i],
+                "metadata": metas[i],
+                "distance": dists[i] if i < len(dists) else None,
+            }
+        )
+    return out
