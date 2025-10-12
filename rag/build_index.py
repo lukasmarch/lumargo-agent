@@ -1,7 +1,7 @@
 # rag/build_index.py
 import os, csv, glob
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Any
 from chromadb import Client
 from chromadb import PersistentClient
 
@@ -79,10 +79,12 @@ def build_gallery() -> int:
     with GALLERY_CSV.open(newline="", encoding="utf-8") as f:
         r = csv.DictReader(f)
         for row in r:
-            # strip wszystkiego co stringowe
-            clean = {
-                k: (v.strip() if isinstance(v, str) else v) for k, v in row.items()
-            }
+            clean: Dict[str, Any] = {}
+            for k, v in row.items():
+                if not isinstance(k, str) or not k.strip():
+                    continue  # pomiń kolumny bez nagłówka (None lub "")
+                key = k.strip()
+                clean[key] = v.strip() if isinstance(v, str) else v
             rows.append(clean)
 
     print(f"[RAG] gallery.csv rows: {len(rows)}")
