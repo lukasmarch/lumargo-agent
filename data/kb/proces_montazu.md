@@ -19,3 +19,6 @@ Prace montażowe to złożony proces, w którym kluczowe jest odpowiednie przygo
 * **Kleje:** Stosujemy odpowiednie kleje. Dla skał wapiennych, piaskowca i marmuru zalecany jest biały klej.
 * **Transparentność:** Na każdym etapie prac mają Państwo wgląd w materiały, które stosujemy (kleje, grunty, spoiny, fugi, silikony).
 * **Gwarancja jakości:** Stosujemy wyłącznie materiały przeznaczone do prac kamieniarskich, co gwarantuje trwałość realizacji i utrzymanie kamienia w odpowiedniej kolorystyce.
+
+## Obłoenie w okół nagrobka 
+* Ważnym lementem ozdobnym jest obłożenie w okół nagrobka kamieniem naturalnym który pozwala zachować estetyczny wygld jak również praktyczne zastosowanie nie pozwala na zabrudzenia nagrobka. Nasze obłożenia sa indywidualnie dobierane do koloru nagrobka. Jesgo struktura to zawsze powierzchnia antypoślizgowa która zapewnia bezpieczna płaszczyznę w przypadku oblodzenia. 
