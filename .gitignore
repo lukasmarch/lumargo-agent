@@ -4,3 +4,7 @@ __pycache__/
 data/leads.db
 data/chroma_db/*
 !data/chroma_db/.gitkeep
+data/gallery_openai.csv
+data/gallery_test.csv
+scripts/__pycache__/
+scripts/generate_gallery_openai.py
