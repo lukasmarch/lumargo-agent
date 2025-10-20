@@ -1,5 +1,5 @@
 # rag/build_index.py
-import os, csv, glob
+import os, csv, glob, json
 from pathlib import Path
 from typing import List, Dict, Any
 from chromadb import Client
@@ -20,6 +20,17 @@ KB_DIR = ROOT / "data" / "kb"
 
 GALLERY_COLL = "gallery"
 KB_COLL = "knowledge_base"
+
+HEADSTONE_FIELD_MAP = {
+    "style": "headstone_style",
+    "letter_material": "headstone_letter_material",
+    "letter_technique": "headstone_letter_technique",
+    "has_photo_on_headboard": "headstone_has_photo_on_headboard",
+    "photo_type": "headstone_photo_type",
+    "headboard_shape": "headstone_headboard_shape",
+    "cover_type": "headstone_cover_type",
+    "accessories": "headstone_accessories",
+}
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
@@ -69,6 +80,40 @@ def chunk(text: str, max_chars: int = 900) -> List[str]:
     return parts
 
 
+def _parse_headstone(raw: Any) -> Dict[str, Any]:
+    if isinstance(raw, dict):
+        return raw
+    if not isinstance(raw, str):
+        return {}
+    text = raw.strip()
+    if not text or text.lower() == "nan":
+        return {}
+    try:
+        data = json.loads(text)
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _clean_value(value: Any) -> str:
+    if isinstance(value, str):
+        text = value.strip()
+        return text if text else "nan"
+    if isinstance(value, list):
+        items = [str(item).strip() for item in value if str(item).strip()]
+        return ", ".join(items) if items else "nan"
+    if value is None:
+        return "nan"
+    return str(value)
+
+
+def _fmt_pair(label: str, value: Any) -> str:
+    text = _clean_value(value)
+    if text.lower() == "nan":
+        return ""
+    return f"{label}:{text}"
+
+
 # ── Budowa indeksu GALLERY ──────────────────────────────────────
 def build_gallery() -> int:
     if not GALLERY_CSV.exists():
@@ -85,6 +130,27 @@ def build_gallery() -> int:
                     continue  # pomiń kolumny bez nagłówka (None lub "")
                 key = k.strip()
                 clean[key] = v.strip() if isinstance(v, str) else v
+            headstone_meta = _parse_headstone(clean.get("headstone"))
+            if headstone_meta:
+                clean["headstone"] = json.dumps(
+                    headstone_meta, ensure_ascii=False, separators=(",", ":")
+                )
+            else:
+                clean["headstone"] = _clean_value(clean.get("headstone"))
+
+            for target in HEADSTONE_FIELD_MAP.values():
+                clean[target] = "nan"
+
+            clean["grave_type"] = _clean_value(clean.get("grave_type"))
+
+            if headstone_meta:
+                for source, target in HEADSTONE_FIELD_MAP.items():
+                    clean[target] = _clean_value(headstone_meta.get(source))
+
+                grave_val = _clean_value(headstone_meta.get("grave_type"))
+                if grave_val.lower() != "nan":
+                    clean["grave_type"] = grave_val
+
             rows.append(clean)
 
     print(f"[RAG] gallery.csv rows: {len(rows)}")
@@ -95,16 +161,33 @@ def build_gallery() -> int:
     # Zmontuj dokumenty do embeddingów
     docs = []
     for clean in rows:
-        doc = " | ".join(
-            [
-                clean.get("caption", "") or "",
-                clean.get("tags", "") or "",
-                f"typ:{clean.get('grave_type','') or ''}",
-                f"kolor:{clean.get('plaque_color','') or ''}",
-                f"kamień:{clean.get('stone','') or ''}",
-                f"wykończenie:{clean.get('finish','') or ''}",
-            ]
-        ).strip(" |")
+        caption = _clean_value(clean.get("caption"))
+        tags = _clean_value(clean.get("tags"))
+        parts = []
+        if caption.lower() != "nan":
+            parts.append(caption)
+        if tags.lower() != "nan":
+            parts.append(tags)
+        parts.extend(
+            filter(
+                None,
+                [
+                    _fmt_pair("typ", clean.get("grave_type")),
+                    _fmt_pair("kolor", clean.get("plaque_color")),
+                    _fmt_pair("kamień", clean.get("stone")),
+                    _fmt_pair("wykończenie", clean.get("finish")),
+                    _fmt_pair("styl", clean.get("headstone_style")),
+                    _fmt_pair("litery", clean.get("headstone_letter_material")),
+                    _fmt_pair("technika", clean.get("headstone_letter_technique")),
+                    _fmt_pair("foto", clean.get("headstone_has_photo_on_headboard")),
+                    _fmt_pair("zdjecie", clean.get("headstone_photo_type")),
+                    _fmt_pair("kształt", clean.get("headstone_headboard_shape")),
+                    _fmt_pair("pokrycie", clean.get("headstone_cover_type")),
+                    _fmt_pair("akcesoria", clean.get("headstone_accessories")),
+                ],
+            )
+        )
+        doc = " | ".join(parts).strip(" |")
         if doc:
             docs.append(doc)
 

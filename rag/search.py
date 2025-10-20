@@ -16,7 +16,33 @@ DB_DIR = str(ROOT / "data" / "chroma_db")
 KB_COLL = "knowledge_base"
 
 GALLERY_COLL = "gallery"
-ALLOWED_FILTERS = {"grave_type", "plaque_color", "stone", "finish", "category"}
+ALLOWED_FILTERS = {
+    "grave_type",
+    "plaque_color",
+    "stone",
+    "finish",
+    "category",
+    "headstone_style",
+    "headstone_letter_material",
+    "headstone_letter_technique",
+    "headstone_has_photo_on_headboard",
+    "headstone_photo_type",
+    "headstone_headboard_shape",
+    "headstone_cover_type",
+    "headstone_accessories",
+}
+
+FILTER_ALIASES = {
+    "style": "headstone_style",
+    "letter_material": "headstone_letter_material",
+    "letter_technique": "headstone_letter_technique",
+    "has_photo_on_headboard": "headstone_has_photo_on_headboard",
+    "photo_type": "headstone_photo_type",
+    "headboard_shape": "headstone_headboard_shape",
+    "cover_type": "headstone_cover_type",
+    "accessories": "headstone_accessories",
+}
+
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -39,8 +65,11 @@ def build_where(filters: Optional[Dict[str, Any]]):
         return None
     clauses = []
     for k, v in filters.items():
-        if k in ALLOWED_FILTERS and v not in (None, "", []):
-            clauses.append({k: {"$eq": v}})
+        key = FILTER_ALIASES.get(k, k)
+        if isinstance(v, str) and v.strip().lower() == "nan":
+            continue
+        if key in ALLOWED_FILTERS and v not in (None, "", []):
+            clauses.append({key: {"$eq": v}})
     if not clauses:
         return None
     if len(clauses) == 1:
@@ -83,6 +112,17 @@ def search_gallery(
                 "plaque_color": meta.get("plaque_color"),
                 "stone": meta.get("stone"),
                 "finish": meta.get("finish"),
+                "headstone": meta.get("headstone", "nan"),
+                "headstone_style": meta.get("headstone_style"),
+                "headstone_letter_material": meta.get("headstone_letter_material"),
+                "headstone_letter_technique": meta.get("headstone_letter_technique"),
+                "headstone_has_photo_on_headboard": meta.get(
+                    "headstone_has_photo_on_headboard"
+                ),
+                "headstone_photo_type": meta.get("headstone_photo_type"),
+                "headstone_headboard_shape": meta.get("headstone_headboard_shape"),
+                "headstone_cover_type": meta.get("headstone_cover_type"),
+                "headstone_accessories": meta.get("headstone_accessories"),
                 "size_w_cm": meta.get("size_w_cm"),
                 "size_l_cm": meta.get("size_l_cm"),
                 "category": meta.get("category", "nagrobki"),
