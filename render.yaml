@@ -3,14 +3,33 @@ services:
     name: lumargo-agent
     env: docker
     plan: starter
-    autoDeploy: true
     region: frankfurt
+    autoDeploy: true
+
+    # === DANE I DYSK ===
     disk:
       name: chroma
       mountPath: /app/data/chroma_db
       sizeGB: 1
+
+    # === ZMIENNE ŚRODOWISKOWE ===
     envVars:
       - key: OPENAI_API_KEY
         sync: false
       - key: ADMIN_TOKEN
         sync: false
+
+    # === PARAMETRY BUDOWANIA ===
+    buildCommand: |
+      echo "🔄 Czyszczenie cache i instalacja od zera"
+      rm -rf /root/.cache/pip
+      rm -rf /app/.venv || true
+      echo "✅ Build cache wyczyszczony"
+
+    # === KOMENDA STARTOWA ===
+    startCommand: sh -c "uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}"
+
+    # === USTAWIENIA ZAAWANSOWANE ===
+    # Wymuszenie nowego builda przy każdym pushu (pomaga przy problemach z cache)
+    autoDeployOnCommit: true
+
