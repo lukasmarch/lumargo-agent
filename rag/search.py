@@ -123,9 +123,7 @@ def search_gallery(
                 "headstone_headboard_shape": meta.get("headstone_headboard_shape"),
                 "headstone_cover_type": meta.get("headstone_cover_type"),
                 "headstone_accessories": meta.get("headstone_accessories"),
-                "size_w_cm": meta.get("size_w_cm"),
-                "size_l_cm": meta.get("size_l_cm"),
-                "category": meta.get("category", "nagrobki"),
+                "category": meta.get("category", ""),
                 "tags": meta.get("tags", ""),
             }
         )
