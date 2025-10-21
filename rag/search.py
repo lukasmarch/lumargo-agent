@@ -22,25 +22,15 @@ ALLOWED_FILTERS = {
     "stone",
     "finish",
     "category",
-    "headstone_style",
-    "headstone_letter_material",
-    "headstone_letter_technique",
     "headstone_has_photo_on_headboard",
     "headstone_photo_type",
-    "headstone_headboard_shape",
-    "headstone_cover_type",
-    "headstone_accessories",
+    "headstone_style",
 }
 
 FILTER_ALIASES = {
-    "style": "headstone_style",
-    "letter_material": "headstone_letter_material",
-    "letter_technique": "headstone_letter_technique",
     "has_photo_on_headboard": "headstone_has_photo_on_headboard",
     "photo_type": "headstone_photo_type",
-    "headboard_shape": "headstone_headboard_shape",
-    "cover_type": "headstone_cover_type",
-    "accessories": "headstone_accessories",
+    "style": "headstone_style",
 }
 
 
@@ -83,6 +73,7 @@ def search_gallery(
     chroma = PersistentClient(path=DB_DIR)
     try:
         coll = chroma.get_collection(GALLERY_COLL)
+
     except Exception:
         # Kolekcja nie istnieje – zwróć pustą listę zamiast 500
         return []
