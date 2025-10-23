@@ -24,13 +24,12 @@ ALLOWED_FILTERS = {
     "category",
     "headstone_has_photo_on_headboard",
     "headstone_photo_type",
-    "headstone_style",
+    "style"
 }
 
 FILTER_ALIASES = {
     "has_photo_on_headboard": "headstone_has_photo_on_headboard",
     "photo_type": "headstone_photo_type",
-    "style": "headstone_style",
 }
 
 
