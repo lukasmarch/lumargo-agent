@@ -1,5 +1,6 @@
 .env
 __pycache__/
+.vscode/
 .DS_Store
 data/leads.db
 data/chroma_db/*
@@ -8,3 +9,4 @@ data/gallery_openai.csv
 data/gallery_test.csv
 scripts/__pycache__/
 scripts/*
+gallery_unique_words.md
