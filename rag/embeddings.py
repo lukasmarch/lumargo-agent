@@ -84,10 +84,11 @@ def embed_texts(texts, *, purpose: str = "document") -> List[List[float]]:
                 task_type = "retrieval_query"
             elif purpose == "document":
                 task_type = "retrieval_document"
+            config = {"task_type": task_type} if task_type else None
             resp = client.models.embed_content(
                 model=MODEL_ID,
-                content=content,
-                task_type=task_type,
+                contents=content,
+                config=config,
             )
             out.append(resp.embedding.values)
         return out
