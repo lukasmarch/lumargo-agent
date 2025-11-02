@@ -19,7 +19,7 @@ services:
       - key: ADMIN_TOKEN
         sync: false
       - key: EMBED_PROVIDER
-        value: sbert
+        value: gemini
       - key: GEMINI_API_KEY
         sync: false
 
