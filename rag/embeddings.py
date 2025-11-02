@@ -75,13 +75,20 @@ def embed_texts(texts, *, purpose: str = "document") -> List[List[float]]:
 
     if PROVIDER == "gemini":
         import google.genai as genai
-        from google.genai.types import EmbedContentRequest
 
         client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
         out: List[List[float]] = []
         for content in prepared:
-            req = EmbedContentRequest(content=content)
-            resp = client.models.embed_content(model=MODEL_ID, request=req)
+            task_type = None
+            if purpose == "query":
+                task_type = "retrieval_query"
+            elif purpose == "document":
+                task_type = "retrieval_document"
+            resp = client.models.embed_content(
+                model=MODEL_ID,
+                content=content,
+                task_type=task_type,
+            )
             out.append(resp.embedding.values)
         return out
 
