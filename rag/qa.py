@@ -1,12 +1,12 @@
 import os
 from typing import List, Dict
-from chromadb import Client
 from chromadb import PersistentClient
 
 # from chromadb.config import Settings
 from openai import OpenAI
 
 from dotenv import load_dotenv
+from rag.embeddings import embed_query
 
 load_dotenv()  # wczyta plik .env z katalogu projektu, jeśli istnieje
 
@@ -18,11 +18,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def retrieve(question: str, k: int = 5):
     chroma = PersistentClient(path=DB_DIR)
     coll = chroma.get_collection(KB_COLL)
-    qv = (
-        client.embeddings.create(model="text-embedding-3-small", input=[question])
-        .data[0]
-        .embedding
-    )
+    qv = embed_query(question)
     res = coll.query(query_embeddings=[qv], n_results=k)
     docs = res.get("documents", [[]])[0]
     metas = res.get("metadatas", [[]])[0]

@@ -27,6 +27,7 @@ RUN uv pip install --system -r /app/requirements.txt
 
 # --- Kopiowanie całego kodu aplikacji ---
 COPY . /app
+COPY data/ /app/data/
 
 # --- Utworzenie katalogu na dane (Render Disk) ---
 RUN mkdir -p /app/data/chroma_db

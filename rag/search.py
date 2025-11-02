@@ -1,16 +1,12 @@
 # rag/search.py
-import os
 from typing import Optional, Dict, Any, List
 from pathlib import Path
-from chromadb import Client
-
 from chromadb import PersistentClient
 
 # from chromadb.config import Settings
-from openai import OpenAI
 
 # from embeddings
-from rag.embeddings import embed_texts
+from rag.embeddings import embed_query
 
 # Ścieżki niezależne od bieżącego katalogu
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,18 +31,8 @@ FILTER_ALIASES = {
     "photo_type": "headstone_photo_type",
 }
 
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-
-# def embed(q: str):
-#     return (
-#         client.embeddings.create(model="text-embedding-3-small", input=[q])
-#         .data[0]
-#         .embedding
-#     )
 def embed(q: str):
-    return embed_texts(q)[0]
+    return embed_query(q)
 
 
 def build_where(filters: Optional[Dict[str, Any]]):
@@ -125,14 +111,6 @@ def search_gallery(
     return out[:limit]
 
 
-def _embed_query(text: str, model: str = "text-embedding-3-small") -> list[float]:
-    text = (text or "").strip()
-    if not text:
-        raise ValueError("empty query")
-    resp = client.embeddings.create(model=model, input=[text])
-    return resp.data[0].embedding
-
-
 def _get_coll(name: str):
     cli = PersistentClient(path=DB_DIR)
     return cli.get_collection(name)
@@ -144,7 +122,7 @@ def kb_search(query: str, k: int = 5):
     [{id, document, metadata, distance}, ...]
     """
     coll = _get_coll(KB_COLL)
-    emb = _embed_query(query)
+    emb = embed_query(query)
     res = coll.query(query_embeddings=[emb], n_results=max(1, int(k)))
 
     out = []

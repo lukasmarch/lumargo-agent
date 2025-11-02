@@ -10,7 +10,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 # from embeddings
-from rag.embeddings import embed_texts
+from rag.embeddings import embed_documents
 
 # Wczytaj .env tylko lokalnie (na Render zmienne przyjdą z systemu)
 load_dotenv()
@@ -208,7 +208,7 @@ def build_gallery() -> int:
     coll = chroma.create_collection(GALLERY_COLL, embedding_function=None)
 
     # Oblicz embeddingi i zapisz
-    embs = embed_texts(docs)
+    embs = embed_documents(docs)
     n = len(embs)
     coll.add(
         ids=[row["id"] for row in rows][:n],
@@ -260,7 +260,7 @@ def build_kb() -> int:
         print("[RAG] kb: no documents – skipping")
         return 0
 
-    embs = embed_texts(docs)
+    embs = embed_documents(docs)
     coll.add(ids=ids, documents=docs, embeddings=embs, metadatas=metas)
 
     try:

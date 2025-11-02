@@ -11,6 +11,7 @@ from rag.build_index import build_all
 from rag.search import search_gallery
 from rag.qa import answer_kb
 from rag.search import kb_search
+from rag.embeddings import embedding_fingerprint
 
 from chromadb import Client
 
@@ -49,6 +50,7 @@ STAMP = "data/.rag.md5"
 
 def current_stamp():
     h = hashlib.md5()
+    h.update(embedding_fingerprint().encode("utf-8"))
     with open("data/gallery.csv", "rb") as f:
         h.update(f.read())
     for fp in sorted(glob.glob("data/kb/*.*")):
@@ -290,7 +292,12 @@ def debug_status():
         sample = data.get("metadatas", [None])[0]
     except Exception as e:
         n, sample = 0, str(e)
-    return {"db_dir": DB, "gallery_items": n, "sample": sample}
+    return {
+        "db_dir": DB,
+        "gallery_items": n,
+        "sample": sample,
+        "embedding": embedding_fingerprint(),
+    }
 
 
 @app.get("/debug/peek")
