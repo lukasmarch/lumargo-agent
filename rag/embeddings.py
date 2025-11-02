@@ -90,7 +90,9 @@ def embed_texts(texts, *, purpose: str = "document") -> List[List[float]]:
                 contents=content,
                 config=config,
             )
-            out.append(resp.embedding.values)
+            if not resp.embeddings:
+                raise RuntimeError("Gemini embed_content returned no embeddings")
+            out.append(resp.embeddings[0].values)
         return out
 
     if PROVIDER == "openai":
