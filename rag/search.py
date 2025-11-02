@@ -9,6 +9,9 @@ from chromadb import PersistentClient
 # from chromadb.config import Settings
 from openai import OpenAI
 
+# from embeddings
+from rag.embeddings import embed_texts
+
 # Ścieżki niezależne od bieżącego katalogu
 ROOT = Path(__file__).resolve().parents[1]
 DB_DIR = str(ROOT / "data" / "chroma_db")
@@ -24,7 +27,7 @@ ALLOWED_FILTERS = {
     "category",
     "headstone_has_photo_on_headboard",
     "headstone_photo_type",
-    "style"
+    "style",
 }
 
 FILTER_ALIASES = {
@@ -36,12 +39,14 @@ FILTER_ALIASES = {
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
+# def embed(q: str):
+#     return (
+#         client.embeddings.create(model="text-embedding-3-small", input=[q])
+#         .data[0]
+#         .embedding
+#     )
 def embed(q: str):
-    return (
-        client.embeddings.create(model="text-embedding-3-small", input=[q])
-        .data[0]
-        .embedding
-    )
+    return embed_texts(q)[0]
 
 
 def build_where(filters: Optional[Dict[str, Any]]):

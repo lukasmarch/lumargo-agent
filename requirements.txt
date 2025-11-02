@@ -6,3 +6,9 @@ chromadb
 pydantic
 requests
 beautifulsoup4
+sentence-transformers==3.2.1
+torch
+torchvision
+google-genai==0.3.0
+numpy==1.26.4
+

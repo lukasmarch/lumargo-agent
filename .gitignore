@@ -9,4 +9,4 @@ data/gallery_openai.csv
 data/gallery_test.csv
 scripts/__pycache__/
 scripts/*
-gallery_unique_words.md
+data/gallery_unique_words.md

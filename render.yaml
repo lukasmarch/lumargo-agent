@@ -18,6 +18,10 @@ services:
         sync: false
       - key: ADMIN_TOKEN
         sync: false
+      - key: EMBED_PROVIDER
+        value: sbert
+      - key: GEMINI_API_KEY
+        sync: false
 
     # === PARAMETRY BUDOWANIA ===
     buildCommand: |

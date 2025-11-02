@@ -9,6 +9,9 @@ from chromadb import PersistentClient
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# from embeddings
+from rag.embeddings import embed_texts
+
 # Wczytaj .env tylko lokalnie (na Render zmienne przyjdą z systemu)
 load_dotenv()
 
@@ -40,20 +43,20 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 # ── Helpers ─────────────────────────────────────────────────────
-def embed_texts(texts: List[str], model="text-embedding-3-small"):
-    """Czyści wejście i zwraca listę wektorów."""
-    if isinstance(texts, str):
-        texts = [texts]
-    cleaned: List[str] = []
-    for t in texts:
-        if isinstance(t, str):
-            s = t.strip()
-            if s:
-                cleaned.append(s)
-    if not cleaned:
-        raise ValueError("embed_texts: empty input after cleaning")
-    resp = client.embeddings.create(model=model, input=cleaned)
-    return [d.embedding for d in resp.data]
+# def embed_texts(texts: List[str], model="text-embedding-3-small"):
+#     """Czyści wejście i zwraca listę wektorów."""
+#     if isinstance(texts, str):
+#         texts = [texts]
+#     cleaned: List[str] = []
+#     for t in texts:
+#         if isinstance(t, str):
+#             s = t.strip()
+#             if s:
+#                 cleaned.append(s)
+#     if not cleaned:
+#         raise ValueError("embed_texts: empty input after cleaning")
+#     resp = client.embeddings.create(model=model, input=cleaned)
+#     return [d.embedding for d in resp.data]
 
 
 def chunk(text: str, max_chars: int = 900) -> List[str]:
